@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useRef } from "react";
+import "./App.css";
+import * as Cesium from "cesium";
+import "cesium/Build/Cesium/Widgets/widgets.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+
+window.CESIUM_BASE_URL = "/Cesium";
+Cesium.Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_TOKEN;
+
+function App(){
+  const viewerRef = useRef(null);
+ 
+
+  useEffect(()=>{
+    
+    const viewer = new Cesium.Viewer(viewerRef.current,{
+      terrainProvider: Cesium.Terrain.fromWorldTerrain()
+    });
+    viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(-74.0445, 40.6892, 100),
+      point:{
+        pixelSize : 10,
+        color: Cesium.Color.RED,
+      },
+      label:{
+        text : "Vehicle 1",
+      }
+    });
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(-74.0445, 40.6892, 2000),
+    });
+
+    return () => viewer.destroy();
+  },[]);
+
+  return <div id="cesiumContainer" ref={viewerRef} style={{ height: "100vh", width: "100%" }} />;
+
 }
 
 export default App;
+
